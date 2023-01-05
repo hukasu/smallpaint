@@ -83,6 +83,9 @@ impl Renderer {
                 } else {
                     panic!("Poisoned image mutex")
                 }
+                if *sample % 25 == 0 {
+                    self.to_ppm(*sample);
+                }
 
                 *sample += 1;
                 // Conclude render if number of samples is reached
@@ -93,29 +96,29 @@ impl Renderer {
                 panic!("Poisoned sample mutex")
             }
         }
+        if let Ok(sample) = self.current_sample.lock() {
+            self.to_ppm(*sample);
+        }
     }
 
     #[allow(dead_code)]
     fn to_ppm(&self, at_sample: u64) {
         if let Ok(image) = self.image.lock() {
+            std::fs::create_dir_all("./target/output").unwrap();
             let mut f = std::fs::File::create(format!("./target/output/{}.ppm", at_sample)).unwrap();
 
-            let max = 255. * (at_sample as f64 + 1.);
-                
-            
             writeln!(f, "P3").unwrap();
             writeln!(f, "{} {}", self.width, self.height).unwrap();
             writeln!(f, "255").unwrap();
             image.iter()
                 .for_each(
                     |color| {
-                        let c = (*color / max) * 255.;
                         writeln!(
                             f,
                             "{} {} {}",
-                            c.x.clamp(0., 255.) as u8,
-                            c.y.clamp(0., 255.) as u8,
-                            c.z.clamp(0., 255.) as u8
+                            (color.x / at_sample as f64).clamp(0., 255.) as u8,
+                            (color.y / at_sample as f64).clamp(0., 255.) as u8,
+                            (color.z / at_sample as f64).clamp(0., 255.) as u8
                         ).unwrap();
                     }
                 );
