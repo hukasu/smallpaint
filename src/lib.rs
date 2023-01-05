@@ -1,7 +1,14 @@
+pub mod camera;
+
+pub mod common;
 
 pub mod extension;
 
-pub struct Ray {
-    origin: glm::DVec3,
-    direction: glm::DVec3
-}
+pub mod renderer;
+
+pub mod sampler;
+
+pub mod scene;
+pub use scene::Scene;
+
+pub mod tracer;

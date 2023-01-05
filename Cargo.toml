@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+num-traits = "0.2.15"
 glm = "0.2.3"
 halton = "0.2.1"
-itertools = "0.10.5"
 rayon = "1.6.0"
 rand = {version = "0.8.5", features = ["std_rng"]}
