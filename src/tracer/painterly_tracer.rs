@@ -41,7 +41,7 @@ where T: Terminator, O: crate::scene::SceneObjectStorage, S: Sampler {
                     SceneObjectMaterial::Diffuse => {
                         let bounce = Ray::new(
                             hp,
-                            glm::normalize(normal + self.1.hemisphere())
+                            normal + self.1.hemisphere()
                         );
                         let cost = glm::dot(*bounce.direction(), normal);
                         let diffuse_color = self.trace(
