@@ -45,7 +45,7 @@ impl Renderer {
                     let y = i % self.height;
                     let ray = Ray::new(
                         glm::to_dvec3(0.),
-                        glm::normalize(camera.view_with_jitter(x as f64, y as f64))
+                        glm::normalize(camera.view_with_filtering(x as f64, y as f64))
                     );
                     (i, tracer.trace(ray, scene, &self.render_params, 0))
                 }

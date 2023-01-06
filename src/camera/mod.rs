@@ -2,7 +2,7 @@ use crate::common::RandomGen;
 
 pub trait Camera: std::marker::Sync {
     fn view(&self, x: f64, y: f64) -> glm::DVec3;
-    fn view_with_jitter(&self, x: f64, y: f64) -> glm::DVec3;
+    fn view_with_filtering(&self, x: f64, y: f64) -> glm::DVec3;
 }
 
 pub struct SimpleCamera(f64, f64);
@@ -26,7 +26,7 @@ impl Camera for SimpleCamera {
         )
     }
 
-    fn view_with_jitter(&self, pixelx: f64, pixely: f64) -> glm::DVec3 {
+    fn view_with_filtering(&self, pixelx: f64, pixely: f64) -> glm::DVec3 {
         let mut v = self.view(pixelx, pixely);
         v.x += RandomGen::rand() / 700.;
         v.y += RandomGen::rand() / 700.;
