@@ -83,11 +83,14 @@ impl Renderer {
                 } else {
                     panic!("Poisoned image mutex")
                 }
+
+                // Increment sample counter
+                *sample += 1;
+                // Output to PPM
                 if *sample % 25 == 0 {
                     self.to_ppm(*sample);
                 }
 
-                *sample += 1;
                 // Conclude render if number of samples is reached
                 if *sample >= self.render_params.samples_per_pixel {
                     break;
@@ -95,9 +98,6 @@ impl Renderer {
             } else {
                 panic!("Poisoned sample mutex")
             }
-        }
-        if let Ok(sample) = self.current_sample.lock() {
-            self.to_ppm(*sample);
         }
     }
 
