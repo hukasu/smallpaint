@@ -8,11 +8,21 @@ pub struct RenderParams {
     pub samples_per_pixel: u64,
 }
 
+#[derive(Debug, Clone)]
+enum RendererStatus {
+    Blank,
+    Running,
+    Paused,
+    Stopped,
+    Completed
+}
+
 pub struct Renderer {
     width: usize,
     height: usize,
     render_params: RenderParams,
-    current_sample: std::sync::Mutex<u64>, 
+    renderer_status: std::sync::Mutex<RendererStatus>,
+    current_sample: std::sync::Mutex<u64>,
     image: std::sync::Mutex<Vec<glm::DVec3>>
 }
 
@@ -27,10 +37,44 @@ impl Renderer {
             width,
             height,
             render_params: RenderParams { refraction_index, samples_per_pixel },
+            renderer_status: std::sync::Mutex::new(RendererStatus::Blank),
             current_sample: std::sync::Mutex::new(0),
             image: std::sync::Mutex::new(
                 vec![glm::to_dvec3(0.); width * height]
             )
+        }
+    }
+
+    pub fn pause(&self) -> Result<(), String> {
+        if let Ok(mut rensta) = self.renderer_status.lock() {
+            if matches!(*rensta, RendererStatus::Running) {
+                *rensta = RendererStatus::Paused;
+            }
+            Ok(())
+        } else {
+            return Err(String::from("Failed to initialize renderer"))
+        }
+    }
+
+    pub fn resume(&self) -> Result<(), String> {
+        if let Ok(mut rensta) = self.renderer_status.lock() {
+            if matches!(*rensta, RendererStatus::Paused) {
+                *rensta = RendererStatus::Running;
+            }
+            Ok(())
+        } else {
+            return Err(String::from("Failed to initialize renderer"))
+        }
+    }
+
+    pub fn stop(&self) -> Result<(), String> {
+        if let Ok(mut rensta) = self.renderer_status.lock() {
+            if matches!(*rensta, RendererStatus::Running | RendererStatus::Paused) {
+                *rensta = RendererStatus::Stopped;
+            }
+            Ok(())
+        } else {
+            return Err(String::from("Failed to initialize renderer"))
         }
     }
 
@@ -69,44 +113,69 @@ impl Renderer {
         tracer: &dyn Tracer,
         camera: &dyn Camera,
         scene: &Scene
-    ) {
+    ) -> Result<(), String> {
+        if let Ok(mut rensta) = self.renderer_status.lock() {
+            *rensta = RendererStatus::Running;
+        } else {
+            return Err(String::from("Failed to initialize renderer"))
+        }
+
         loop {
-            // Pause render if paused by User
-
-            // Stop render if stopped by User
-
-            // Run a pass over the image
-            let pass = self.pass(tracer, camera, scene);
-
-            // Incrementing sample count
-            if let Ok(mut sample) = self.current_sample.lock() {
-                // Merging pass into image
-                if let Ok(mut pixels) = self.image.lock() {
-                    pixels.iter_mut().zip(pass)
-                        .for_each(
-                            |(i, p)| {
-                                *i = *i + p;
-                            }
-                        );
-                } else {
-                    panic!("Poisoned image mutex")
-                }
-
-                // Increment sample counter
-                *sample += 1;
-                // Output to PPM
-                if *sample % 25 == 0 {
-                    self.to_ppm(*sample);
-                }
-
-                // Conclude render if number of samples is reached
-                if *sample >= self.render_params.samples_per_pixel {
-                    break;
-                }
+            let rensta = if let Ok(rensta) = self.renderer_status.lock() {
+                rensta.clone()
             } else {
-                panic!("Poisoned sample mutex")
+                return Err(String::from("Failed to initialize renderer"))
+            };
+
+            match rensta {
+                RendererStatus::Blank => return Err(String::from("Renderer was blank.")),
+                RendererStatus::Running => {
+                    // Run a pass over the image
+                    let pass = self.pass(tracer, camera, scene);
+
+                    // Incrementing sample count
+                    if let Ok(mut sample) = self.current_sample.lock() {
+                        // Merging pass into image
+                        if let Ok(mut pixels) = self.image.lock() {
+                            pixels.iter_mut().zip(pass)
+                                .for_each(
+                                    |(i, p)| {
+                                        *i = *i + p;
+                                    }
+                                );
+                        } else {
+                            if let Ok(mut rensta) = self.renderer_status.lock() {
+                                *rensta = RendererStatus::Stopped;
+                            }
+                            return Err(String::from("Poisoned image mutex"))
+                        }
+
+                        // Increment sample counter
+                        *sample += 1;
+                        // Output to PPM
+                        if *sample % 25 == 0 {
+                            self.to_ppm(*sample);
+                        }
+
+                        // Conclude render if number of samples is reached
+                        if *sample >= self.render_params.samples_per_pixel {
+                            break;
+                        }
+                    } else {
+                        if let Ok(mut rensta) = self.renderer_status.lock() {
+                            *rensta = RendererStatus::Stopped;
+                        }
+                        return Err(String::from("Poisoned sample mutex"))
+                    }
+                },
+                RendererStatus::Paused => (),
+                RendererStatus::Stopped | RendererStatus::Completed => break
             }
         }
+        if let Ok(mut rensta) = self.renderer_status.lock() {
+            *rensta = RendererStatus::Completed;
+        }
+        Ok(())
     }
 
     #[allow(dead_code)]

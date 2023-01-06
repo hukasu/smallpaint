@@ -114,5 +114,5 @@ fn main() {
 
     let camera = SimpleCamera::new(WIDTH as f64, HEIGHT as f64);
     
-    renderer.render(&tracer, &camera, &rscene);
+    renderer.render(&tracer, &camera, &rscene).unwrap();
 }
