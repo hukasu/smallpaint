@@ -2,12 +2,10 @@ use crate::{scene::{Scene, obj::SceneObjectMaterial}, common::{Terminator, Ray},
 
 use super::Tracer;
 
-pub struct PainterlyTracer<T, S>(T, S)
-where T: Terminator;
+pub struct PainterlyTracer(Box<dyn Terminator>, Box<dyn Sampler>);
 
-impl<T, S> PainterlyTracer<T, S>
-where T: Terminator, S: Sampler {
-    pub fn new(terminator: T, sampler: S) -> Self {
+impl PainterlyTracer {
+    pub fn new(terminator: Box<dyn Terminator>, sampler: Box<dyn Sampler>) -> Self {
         Self(
             terminator,
             sampler
@@ -15,12 +13,11 @@ where T: Terminator, S: Sampler {
     }
 }
 
-impl<T, S, O> Tracer<O> for PainterlyTracer<T, S>
-where T: Terminator, O: crate::scene::SceneObjectStorage, S: Sampler {
+impl Tracer for PainterlyTracer {
     fn trace(
         &self,
         ray: Ray,
-        scene: &Scene<O>,
+        scene: &Scene,
         render_params: &RenderParams,
         depth: usize
     ) -> glm::DVec3 {

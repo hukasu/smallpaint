@@ -1,7 +1,7 @@
 use std::io::Write;
 use rayon::prelude::{ParallelBridge, ParallelIterator};
 
-use crate::{scene::SceneObjectStorage, tracer::Tracer, camera::Camera, common::Ray, Scene};
+use crate::{tracer::Tracer, camera::Camera, common::Ray, Scene};
 
 pub struct RenderParams {
     pub refraction_index: f64,
@@ -34,8 +34,12 @@ impl Renderer {
         }
     }
 
-    fn pass<T, O, C>(&self, tracer: &T, camera: &C, scene: &Scene<O>) -> Vec<glm::DVec3>
-    where T: Tracer<O>, O: SceneObjectStorage, C: Camera {
+    fn pass(
+        &self,
+        tracer: &dyn Tracer,
+        camera: &dyn Camera,
+        scene: &Scene
+    ) -> Vec<glm::DVec3> {
         // Initialy the values in `pass` will be in order of conclusion
         // so map includes the index of the pixel
         let mut pass = (0..(self.width * self.height)).par_bridge()
@@ -60,8 +64,12 @@ impl Renderer {
             .collect()
     }
 
-    pub fn render<T, O, C>(&mut self, tracer: &T, camera: &C, scene: &Scene<O>)
-    where T: Tracer<O>, O: SceneObjectStorage, C: Camera {
+    pub fn render(
+        &mut self,
+        tracer: &dyn Tracer,
+        camera: &dyn Camera,
+        scene: &Scene
+    ) {
         loop {
             // Pause render if paused by User
 

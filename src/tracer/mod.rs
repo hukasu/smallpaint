@@ -1,14 +1,13 @@
-use crate::{common::Ray, scene::{Scene, SceneObjectStorage}, renderer::RenderParams};
+use crate::{common::Ray, scene::Scene, renderer::RenderParams};
 
 mod painterly_tracer;
 pub use painterly_tracer::*;
 
-pub trait Tracer<O>: std::marker::Sync
-where O: SceneObjectStorage {
+pub trait Tracer: std::marker::Sync {
     fn trace(
         &self,
         ray: Ray,
-        scene: &Scene<O>,
+        scene: &Scene,
         render_params: &RenderParams,
         depth: usize
     ) -> glm::DVec3;

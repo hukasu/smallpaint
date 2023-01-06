@@ -3,15 +3,15 @@ use smallpaint::{common::DepthTerminator, renderer::Renderer, sampler::HaltonSam
 fn main() {
     const WIDTH: usize = 512;
     const HEIGHT: usize = 512;
-    const SAMPLES_PER_PIXEL: u64 = 10_000;
+    const SAMPLES_PER_PIXEL: u64 = 25;
     const REFRACTION_INDEX: f64 = 1.5;
     const MAX_DEPTH: usize = 20;
     const BASE_EMISSION: f64 = 0.;
     const LIGHT_EMISSION: f64 = 120.;
 
     let tracer = PainterlyTracer::new(
-        DepthTerminator::new(MAX_DEPTH),
-        HaltonSampler::new()
+        Box::new(DepthTerminator::new(MAX_DEPTH)),
+        Box::new(HaltonSampler::new())
     );
     let mut renderer: Renderer = Renderer::new(
         WIDTH,
@@ -20,7 +20,7 @@ fn main() {
         SAMPLES_PER_PIXEL
     );
 
-    let mut rscene: Scene<Vec<_>> = Scene::new();
+    let mut rscene: Scene = Scene::new_with_vec_storage();
     rscene.insert_object(
         SceneObject::new_sphere(
             glm::dvec3(4., 8., 4.),

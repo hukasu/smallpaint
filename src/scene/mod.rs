@@ -2,7 +2,7 @@ use crate::common::Ray;
 
 pub mod obj;
 
-pub trait SceneObjectStorage: Default + std::marker::Sync {
+pub trait SceneObjectStorage: std::marker::Sync {
     fn find_intersection(&self, ray: &Ray) -> Option<obj::SceneObjectIntersection>;
     fn insert_object(&mut self, obj: obj::SceneObject);
 }
@@ -21,14 +21,20 @@ impl SceneObjectStorage for Vec<obj::SceneObject> {
     }
 }
 
-pub struct Scene<T> where T: SceneObjectStorage {
-    objects: T
+pub struct Scene {
+    objects: Box<dyn SceneObjectStorage>
 }
 
-impl<T> Scene<T> where T: SceneObjectStorage {
-    pub fn new() -> Self {
+impl Scene {
+    pub fn new(objects: Box<dyn SceneObjectStorage>) -> Self {
         Self {
-            objects: T::default()
+            objects
+        }
+    }
+
+    pub fn new_with_vec_storage() -> Self {
+        Self {
+            objects: Box::new(Vec::new())
         }
     }
 
