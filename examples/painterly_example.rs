@@ -14,7 +14,7 @@ fn main() {
     const REFRACTION_INDEX: f64 = 1.5;
     const MAX_DEPTH: usize = 20;
     const BASE_EMISSION: f64 = 0.;
-    const LIGHT_EMISSION: f64 = 120.;
+    const LIGHT_EMISSION: f64 = 240.;
 
     let tracer = PainterlyTracer::new(
         Box::new(DepthTerminator::new(MAX_DEPTH)),

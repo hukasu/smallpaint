@@ -32,13 +32,14 @@ impl Tracer for PainterlyTracer {
             zero
         } else {
             let intersection = scene.find_intersection(&ray);
+            let rr_factor = self.0.factor(depth); 
 
             if let Some(inter) = intersection {
                 // Travel the ray to the hit point where the closest object lies and compute the surface normal there.
                 let hp = *ray.origin() + *ray.direction() * inter.ray_length();
                 let normal = inter.object().normal(&hp);
 
-                let emission_color = glm::to_dvec3(inter.object().emission()) * 2.;
+                let emission_color = glm::to_dvec3(inter.object().emission()) * rr_factor;
 
                 let material_color = match inter.object().material() {
                     SceneObjectMaterial::Diffuse => {
@@ -53,7 +54,7 @@ impl Tracer for PainterlyTracer {
                             render_params,
                             depth + 1
                         );
-                        ((diffuse_color * *inter.object().color()) * cost) * 0.1
+                        ((diffuse_color * *inter.object().color()) * cost) * 0.1 * rr_factor
                     },
                     SceneObjectMaterial::Specular => {
                         let cost = glm::dot(*ray.direction(), normal);
@@ -66,7 +67,7 @@ impl Tracer for PainterlyTracer {
                             scene,
                             render_params,
                             depth + 1
-                        )
+                        ) * rr_factor
                     },
                     SceneObjectMaterial::Refractive => {
                         let dot = glm::dot(normal, *ray.direction());
@@ -87,7 +88,7 @@ impl Tracer for PainterlyTracer {
                                 scene,
                                 render_params,
                                 depth + 1
-                            )
+                            ) * rr_factor
                         } else {
                             zero
                         }

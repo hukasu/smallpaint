@@ -12,4 +12,8 @@ impl Terminator for DepthTerminator {
     fn terminate(&self, depth: usize) -> bool {
         depth >= self.0
     }
+
+    fn factor(&self, _depth: usize) -> f64 {
+        1.
+    }
 }
