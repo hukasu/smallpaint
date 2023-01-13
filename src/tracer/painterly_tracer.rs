@@ -43,11 +43,12 @@ impl Tracer for PainterlyTracer {
 
                 let material_color = match inter.object().material() {
                     SceneObjectMaterial::Diffuse => {
+                        let bounce_dir = glm::normalize(normal + self.1.hemisphere());
+                        let cost = glm::dot(bounce_dir, normal);
                         let bounce = Ray::new(
                             hp,
-                            normal + self.1.hemisphere()
+                            bounce_dir
                         );
-                        let cost = glm::dot(*bounce.direction(), normal);
                         let diffuse_color = self.trace(
                             bounce,
                             scene,
