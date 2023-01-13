@@ -1,4 +1,11 @@
-use smallpaint::{common::DepthTerminator, renderer::Renderer, sampler::HaltonSampler, scene::{Scene, obj::{SceneObjectMaterial, SceneObject}}, tracer::PainterlyTracer, camera::SimpleCamera};
+use smallpaint::{
+    renderer::Renderer,
+    sampler::HaltonSampler,
+    scene::{Scene, obj::{SceneObjectMaterial, SceneObject}},
+    tracer::PainterlyTracer,
+    camera::SimpleCamera,
+    terminator::DepthTerminator
+};
 
 fn main() {
     const WIDTH: usize = 512;

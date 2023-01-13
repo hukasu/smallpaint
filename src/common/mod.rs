@@ -1,9 +1,6 @@
 mod ray;
 pub use ray::Ray;
 
-mod terminator;
-pub use terminator::{Terminator, DepthTerminator};
-
 pub struct RandomGen;
 
 impl RandomGen {

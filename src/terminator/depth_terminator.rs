@@ -1,6 +1,4 @@
-pub trait Terminator: std::marker::Sync {
-    fn terminate(&self, depth: usize) -> bool;
-}
+use super::Terminator;
 
 pub struct DepthTerminator(usize);
 

@@ -1,4 +1,10 @@
-use crate::{scene::{Scene, obj::SceneObjectMaterial}, common::{Terminator, Ray}, sampler::{Sampler}, renderer::RenderParams};
+use crate::{
+    scene::{Scene, obj::SceneObjectMaterial},
+    common::Ray,
+    sampler::{Sampler},
+    renderer::RenderParams,
+    terminator::Terminator
+};
 
 use super::Tracer;
 
