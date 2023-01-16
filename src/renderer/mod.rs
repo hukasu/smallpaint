@@ -1,4 +1,3 @@
-use std::io::Write;
 use rayon::prelude::{ParallelBridge, ParallelIterator};
 
 use crate::{tracer::Tracer, camera::Camera, common::Ray, Scene};
@@ -152,10 +151,6 @@ impl Renderer {
 
                         // Increment sample counter
                         *sample += 1;
-                        // Output to PPM
-                        if *sample % 25 == 0 {
-                            self.to_ppm(*sample);
-                        }
 
                         // Conclude render if number of samples is reached
                         if *sample >= self.render_params.samples_per_pixel {
@@ -178,27 +173,17 @@ impl Renderer {
         Ok(())
     }
 
-    #[allow(dead_code)]
-    fn to_ppm(&self, at_sample: u64) {
-        if let Ok(image) = self.image.lock() {
-            std::fs::create_dir_all("./target/output").unwrap();
-            let mut f = std::fs::File::create(format!("./target/output/{}.ppm", at_sample)).unwrap();
+    pub fn get_dimensions(&self) -> (usize, usize) {
+        (
+            self.width,
+            self.height
+        )
+    }
 
-            writeln!(f, "P3").unwrap();
-            writeln!(f, "{} {}", self.width, self.height).unwrap();
-            writeln!(f, "255").unwrap();
-            image.iter()
-                .for_each(
-                    |color| {
-                        writeln!(
-                            f,
-                            "{} {} {}",
-                            (color.x / at_sample as f64).clamp(0., 255.) as u8,
-                            (color.y / at_sample as f64).clamp(0., 255.) as u8,
-                            (color.z / at_sample as f64).clamp(0., 255.) as u8
-                        ).unwrap();
-                    }
-                );
-        }
+    pub fn get_image(&self) -> (std::sync::MutexGuard<Vec<glm::DVec3>>, std::sync::MutexGuard<u64>) {
+        (
+            self.image.lock().unwrap(),
+            self.current_sample.lock().unwrap()
+        )
     }
 }

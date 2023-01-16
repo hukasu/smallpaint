@@ -14,3 +14,5 @@ pub use scene::Scene;
 pub mod terminator;
 
 pub mod tracer;
+
+pub mod writer;

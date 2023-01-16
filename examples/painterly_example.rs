@@ -4,7 +4,8 @@ use smallpaint::{
     scene::{Scene, obj::{SceneObjectMaterial, SceneObject}},
     tracer::PainterlyTracer,
     camera::SimpleCamera,
-    terminator::DepthTerminator
+    terminator::DepthTerminator,
+    writer::{Writer, ppm::PPMWriter}
 };
 
 fn main() {
@@ -122,4 +123,5 @@ fn main() {
     let camera = SimpleCamera::new(WIDTH as f64, HEIGHT as f64);
     
     renderer.render(&tracer, &camera, &rscene).unwrap();
+    PPMWriter::write(&renderer, "./painterly_example.ppm");
 }
