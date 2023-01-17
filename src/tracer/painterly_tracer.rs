@@ -6,7 +6,7 @@ use crate::{
     terminator::Terminator
 };
 
-use super::Tracer;
+use super::{Tracer, TracerCapabilities};
 
 pub struct PainterlyTracer(Box<dyn Terminator>, Box<dyn Sampler>);
 
@@ -99,6 +99,13 @@ impl Tracer for PainterlyTracer {
             } else {
                 zero
             }
+        }
+    }
+
+    fn capabilities() -> TracerCapabilities {
+        TracerCapabilities {
+            caustics: true,
+            fresnel: false
         }
     }
 }
