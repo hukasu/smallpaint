@@ -2,7 +2,7 @@ use smallpaint::{
     renderer::Renderer,
     sampler::HaltonSampler,
     scene::sample::{SampleScene, ThreeSpheresSampleScene},
-    tracer::PainterlyTracer,
+    tracer::SimpleTracer,
     camera::SimpleCamera,
     terminator::DepthTerminator,
     writer::{Writer, ppm::PPMWriter}
@@ -15,7 +15,7 @@ fn main() {
     const REFRACTION_INDEX: f64 = 1.5;
     const MAX_DEPTH: usize = 20;
 
-    let tracer = PainterlyTracer::new(
+    let tracer = SimpleTracer::new(
         Box::new(DepthTerminator::new(MAX_DEPTH)),
         Box::new(HaltonSampler::new())
     );

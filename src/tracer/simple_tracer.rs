@@ -8,9 +8,9 @@ use crate::{
 
 use super::{Tracer, TracerCapabilities};
 
-pub struct PainterlyTracer(Box<dyn Terminator>, Box<dyn Sampler>);
+pub struct SimpleTracer(Box<dyn Terminator>, Box<dyn Sampler>);
 
-impl PainterlyTracer {
+impl SimpleTracer {
     pub fn new(terminator: Box<dyn Terminator>, sampler: Box<dyn Sampler>) -> Self {
         Self(
             terminator,
@@ -19,7 +19,7 @@ impl PainterlyTracer {
     }
 }
 
-impl Tracer for PainterlyTracer {
+impl Tracer for SimpleTracer {
     fn trace(
         &self,
         ray: Ray,

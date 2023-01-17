@@ -1,7 +1,7 @@
 use crate::{common::Ray, scene::Scene, renderer::RenderParams};
 
-mod painterly_tracer;
-pub use painterly_tracer::*;
+mod simple_tracer;
+pub use simple_tracer::*;
 
 pub struct TracerCapabilities {
     pub caustics: bool,
