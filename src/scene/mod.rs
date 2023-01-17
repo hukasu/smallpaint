@@ -2,6 +2,9 @@ use crate::common::Ray;
 
 pub mod obj;
 
+#[cfg(feature = "sample-scenes")]
+pub mod sample;
+
 pub trait SceneObjectStorage: std::marker::Sync {
     fn find_intersection(&self, ray: &Ray) -> Option<obj::SceneObjectIntersection>;
     fn insert_object(&mut self, obj: obj::SceneObject);
