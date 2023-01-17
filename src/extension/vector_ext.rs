@@ -1,4 +1,4 @@
-trait OrthonormalVectorExt<V>: glm::GenFloatVec<V>
+pub trait OrthonormalVectorExt<V>: glm::GenFloatVec<V>
 where V: glm::BaseFloat {
     fn orthonormal(&self) -> (glm::Vector3<V>, glm::Vector3<V>);
 }
