@@ -10,6 +10,7 @@ use super::{Tracer, TracerCapabilities};
 
 pub struct SimpleTracer(Box<dyn Terminator>, Box<dyn Sampler>);
 
+/// Simple tracer
 impl SimpleTracer {
     pub fn new(terminator: Box<dyn Terminator>, sampler: Box<dyn Sampler>) -> Self {
         Self(
