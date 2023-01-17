@@ -9,6 +9,10 @@ edition = "2021"
 name = "painterly_example"
 required-features = ["sample-scenes"]
 
+[[example]]
+name = "fresnel_example"
+required-features = ["sample-scenes"]
+
 [dependencies]
 glm = { git = "https://github.com/Sarvadi/glm-rs" }
 halton = "0.2.1"

@@ -3,6 +3,9 @@ use crate::{common::Ray, scene::Scene, renderer::RenderParams};
 mod simple_tracer;
 pub use simple_tracer::*;
 
+mod fresnel_tracer;
+pub use fresnel_tracer::*;
+
 pub struct TracerCapabilities {
     pub caustics: bool,
     pub fresnel: bool,
