@@ -3,6 +3,7 @@ use crate::{
     scene::obj::{SceneObjectGeometry, SELFINTERSECTION_TOLERANCE}
 };
 
+#[derive(Debug)]
 pub struct Sphere {
     center: glm::DVec3,
     radius: f64

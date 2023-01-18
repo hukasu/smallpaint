@@ -3,6 +3,7 @@ use crate::{
     scene::obj::{SceneObjectGeometry, SELFINTERSECTION_TOLERANCE}
 };
 
+#[derive(Debug)]
 pub struct Plane {
     normal: glm::DVec3,
     displacement: f64
