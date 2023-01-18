@@ -38,7 +38,7 @@ impl Tracer for SimpleTracer {
             if let Some(inter) = intersection {
                 // Travel the ray to the hit point where the closest object lies and compute the surface normal there.
                 let hp = *ray.origin() + *ray.direction() * inter.ray_length();
-                let normal = inter.object().normal(&hp);
+                let normal = inter.normal();
 
                 let emission_color = glm::to_dvec3(inter.object().emission()) * rr_factor;
 

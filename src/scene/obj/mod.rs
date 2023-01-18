@@ -10,22 +10,29 @@ pub const SELFINTERSECTION_TOLERANCE: f64 = 1e-6;
 
 pub struct SceneObjectIntersection<'a> {
     object: &'a SceneObject,
+    normal: glm::DVec3,
     ray_length: f64
 }
 
 impl<'a> SceneObjectIntersection<'a> {
     pub fn new(
         object: &'a SceneObject,
+        normal: glm::DVec3,
         ray_length: f64
     ) -> Self {
         Self {
             object,
+            normal,
             ray_length
         }
     }
 
     pub fn object(&self) -> &SceneObject {
         &self.object
+    }
+
+    pub fn normal(&self) -> glm::DVec3 {
+        self.normal.clone()
     }
 
     pub fn ray_length(&self) -> f64 {
@@ -114,12 +121,8 @@ impl SceneObject {
         self.material
     }
 
-    pub fn intersect(&self, ray: &Ray) -> f64 {
+    pub fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
         self.geometry.intersect(ray)
-    }
-
-    pub fn normal(&self, intersect: &glm::DVec3) -> glm::DVec3 {
-        self.geometry.normal(intersect)
     }
 
     pub fn bounding_box(&self) -> (glm::DVec3, glm::DVec3) {
@@ -128,7 +131,6 @@ impl SceneObject {
 }
 
 pub trait SceneObjectGeometry: std::marker::Sync {
-    fn intersect(&self, ray: &Ray) -> f64;
-    fn normal(&self, intersect: &glm::DVec3) -> glm::DVec3;
-    fn bounding_box(&self) -> (glm::DVec3, glm::DVec3); // TODO
+    fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)>;
+    fn bounding_box(&self) -> (glm::DVec3, glm::DVec3);
 }

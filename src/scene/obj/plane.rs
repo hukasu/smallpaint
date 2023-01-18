@@ -26,22 +26,18 @@ impl Plane {
 }
 
 impl SceneObjectGeometry for Plane {
-    fn intersect(&self, ray: &Ray) -> f64 {
+    fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
         let d = glm::dot(self.normal, *ray.direction());
         if glm::is_approx_eq(&d, &0.) {
-            0.
+            None
         } else {
             let t = -1. * (glm::dot(self.normal, *ray.origin()) + self.displacement) / d;
             if t > SELFINTERSECTION_TOLERANCE {
-                t
+                Some((self.normal, t))
             } else {
-                0.
+                None
             }
         }
-    }
-
-    fn normal(&self, _intersect: &glm::DVec3) -> glm::DVec3 {
-        self.normal
     }
 
     fn bounding_box(&self) -> (glm::DVec3, glm::DVec3) {

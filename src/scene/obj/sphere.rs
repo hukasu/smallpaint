@@ -30,7 +30,7 @@ impl Sphere {
 }
 
 impl SceneObjectGeometry for Sphere {
-    fn intersect(&self, ray: &Ray) -> f64 {
+    fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
         let ray_mns_center = *ray.origin() - self.center;
         let b = glm::dot(ray_mns_center * glm::to_dvec3(2.), *ray.direction());
         let c = glm::dot(ray_mns_center, ray_mns_center) - (self.radius.powf(2.));
@@ -39,16 +39,20 @@ impl SceneObjectGeometry for Sphere {
             let disc = disc.sqrt();
             let sol1 = -b + disc;
             let sol2 = -b - disc;
-            if sol2 > SELFINTERSECTION_TOLERANCE { sol2 / 2. }
-            else {
-                if sol1 > SELFINTERSECTION_TOLERANCE { sol1 / 2. }
-                else { 0. }
+            if sol2 > SELFINTERSECTION_TOLERANCE {
+                let t = sol2 / 2.;
+                let intersect = *ray.origin() + *ray.direction() * t;
+                Some((glm::normalize(intersect - self.center), t))
             }
-        } else { 0. }
-    }
-
-    fn normal(&self, intersect: &glm::DVec3) -> glm::DVec3 {
-        glm::normalize(*intersect - self.center)
+            else {
+                if sol1 > SELFINTERSECTION_TOLERANCE {
+                    let t = sol1 / 2.;
+                    let intersect = *ray.origin() + *ray.direction() * t;
+                    Some((glm::normalize(intersect - self.center), t))
+                }
+                else { None }
+            }
+        } else { None }
     }
 
     fn bounding_box(&self) -> (glm::DVec3, glm::DVec3) {
