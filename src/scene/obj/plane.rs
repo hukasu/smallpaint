@@ -19,6 +19,10 @@ impl Plane {
             displacement
         }
     }
+
+    pub fn displacement(&self) -> f64 {
+        self.displacement
+    }
 }
 
 impl SceneObjectGeometry for Plane {

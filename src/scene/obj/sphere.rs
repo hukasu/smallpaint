@@ -19,6 +19,14 @@ impl Sphere {
             radius
         }
     }
+
+    pub fn center(&self) -> glm::DVec3 {
+        self.center
+    } 
+
+    pub fn radius(&self) -> f64 {
+        self.radius
+    } 
 }
 
 impl SceneObjectGeometry for Sphere {
