@@ -1,6 +1,6 @@
 use crate::{
     common::Ray,
-    scene::obj::SceneObjectGeometry
+    scene::obj::{SceneObjectGeometry, SELFINTERSECTION_TOLERANCE}
 };
 
 pub struct Sphere {
@@ -30,9 +30,9 @@ impl SceneObjectGeometry for Sphere {
             let disc = disc.sqrt();
             let sol1 = -b + disc;
             let sol2 = -b - disc;
-            if sol2 > 1e-6 { sol2 / 2. }
+            if sol2 > SELFINTERSECTION_TOLERANCE { sol2 / 2. }
             else {
-                if sol1 > 1e-6 { sol1 / 2. }
+                if sol1 > SELFINTERSECTION_TOLERANCE { sol1 / 2. }
                 else { 0. }
             }
         } else { 0. }

@@ -1,6 +1,7 @@
 use crate::common::Ray;
 
 pub mod obj;
+use obj::SELFINTERSECTION_TOLERANCE;
 
 #[cfg(feature = "sample-scenes")]
 pub mod sample;
@@ -14,7 +15,7 @@ impl SceneObjectStorage for Vec<obj::SceneObject> {
     fn find_intersection(&self, ray: &Ray) -> Option<obj::SceneObjectIntersection> {
         self.iter()
             .filter_map(|obj| Some((obj, obj.intersect(ray))))
-            .filter(|(_, d)| d >= &1e-6)
+            .filter(|(_, d)| d >= &SELFINTERSECTION_TOLERANCE)
             .min_by(|(_, rd), (_, ld)| rd.total_cmp(ld))
             .map(|(obj, d)| obj::SceneObjectIntersection::new(obj, d))
     }

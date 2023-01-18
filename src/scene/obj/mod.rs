@@ -6,6 +6,8 @@ pub use plane::Plane;
 mod sphere;
 pub use sphere::Sphere;
 
+pub const SELFINTERSECTION_TOLERANCE: f64 = 1e-6;
+
 pub struct SceneObjectIntersection<'a> {
     object: &'a SceneObject,
     ray_length: f64

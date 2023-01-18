@@ -1,6 +1,6 @@
 use crate::{
     common::Ray,
-    scene::obj::SceneObjectGeometry
+    scene::obj::{SceneObjectGeometry, SELFINTERSECTION_TOLERANCE}
 };
 
 pub struct Plane {
@@ -27,7 +27,7 @@ impl SceneObjectGeometry for Plane {
             0.
         } else {
             let t = -1. * (glm::dot(self.normal, *ray.origin()) + self.displacement) / d;
-            if t > 1e-6 {
+            if t > SELFINTERSECTION_TOLERANCE {
                 t
             } else {
                 0.
