@@ -21,6 +21,14 @@ impl Plane {
             normal
         }
     }
+
+    pub fn point(&self) -> &glm::DVec3 {
+        &self.point
+    }
+
+    pub fn normal(&self) -> &glm::DVec3 {
+        &self.normal
+    }
 }
 
 impl SceneObjectGeometry for Plane {
