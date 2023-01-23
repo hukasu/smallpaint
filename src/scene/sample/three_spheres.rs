@@ -41,8 +41,8 @@ impl SampleScene for ThreeSpheresSampleScene {
                 glm::dvec3(6., 6., 6.),
                 BASE_EMISSION,
                 SceneObjectMaterial::Diffuse,
-                glm::dvec3(1., 0., 0.),
-                3.0
+                glm::dvec3(-3., 0., 0.),
+                glm::dvec3(1., 0., 0.)
             )
         );
         rscene.insert_object(
@@ -50,8 +50,8 @@ impl SampleScene for ThreeSpheresSampleScene {
                 glm::dvec3(6., 6., 6.),
                 BASE_EMISSION,
                 SceneObjectMaterial::Diffuse,
-                glm::dvec3(-1., 0., 0.),
-                2.5
+                glm::dvec3(2.5, 0., 0.),
+                glm::dvec3(-1., 0., 0.)
             )
         );
         rscene.insert_object(
@@ -59,8 +59,8 @@ impl SampleScene for ThreeSpheresSampleScene {
                 glm::dvec3(10., 2., 2.),
                 BASE_EMISSION,
                 SceneObjectMaterial::Diffuse,
-                glm::dvec3(0., 1., 0.),
-                2.75
+                glm::dvec3(0., -2.75, 0.),
+                glm::dvec3(0., 1., 0.)
             )
         );
         rscene.insert_object(
@@ -68,8 +68,8 @@ impl SampleScene for ThreeSpheresSampleScene {
                 glm::dvec3(2., 10., 2.),
                 BASE_EMISSION,
                 SceneObjectMaterial::Diffuse,
-                glm::dvec3(0., -1., 0.),
-                2.75
+                glm::dvec3(0., 2.75, 0.),
+                glm::dvec3(0., -1., 0.)
             )
         );
         rscene.insert_object(
@@ -77,8 +77,8 @@ impl SampleScene for ThreeSpheresSampleScene {
                 glm::dvec3(6., 6., 6.),
                 BASE_EMISSION,
                 SceneObjectMaterial::Diffuse,
-                glm::dvec3(0., 0., 1.),
-                5.5
+                glm::dvec3(0., 0., -5.5),
+                glm::dvec3(0., 0., 1.)
             )
         );
         rscene.insert_object(
@@ -86,8 +86,8 @@ impl SampleScene for ThreeSpheresSampleScene {
                 glm::dvec3(6., 6., 6.),
                 BASE_EMISSION,
                 SceneObjectMaterial::Diffuse,
-                glm::dvec3(0., 0., -1.),
-                0.5
+                glm::dvec3(0., 0., 0.5),
+                glm::dvec3(0., 0., -1.)
             )
         );
         rscene.insert_object(

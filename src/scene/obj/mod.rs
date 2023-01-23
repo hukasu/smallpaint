@@ -73,8 +73,8 @@ impl SceneObject {
         color: glm::DVec3,
         emission: f64,
         material: SceneObjectMaterial,
+        point: glm::DVec3,
         normal: glm::DVec3,
-        displacement: f64
     ) -> Self {
         Self {
             color,
@@ -82,8 +82,8 @@ impl SceneObject {
             material,
             geometry: Box::new(
                 Plane::new(
-                    normal,
-                    displacement
+                    point,
+                    normal
                 )
             )
         }
