@@ -42,6 +42,15 @@ impl Tracer for SimpleTracer {
 
                 let emission_color = glm::to_dvec3(inter.object().emission()) * rr_factor;
 
+                let (normal, refr) = {
+                    let internal_inter_test = glm::dot(normal, *ray.direction());
+                    if internal_inter_test > 0. {
+                        (normal * -1., render_params.refraction_index)
+                    } else {
+                        (normal, 1. / render_params.refraction_index)
+                    }
+                };
+
                 let material_color = match inter.object().material() {
                     SceneObjectMaterial::Diffuse => {
                         let bounce_dir = glm::normalize(normal + self.1.hemisphere());
@@ -72,12 +81,6 @@ impl Tracer for SimpleTracer {
                         ) * rr_factor
                     },
                     SceneObjectMaterial::Refractive => {
-                        let dot = glm::dot(normal, *ray.direction());
-                        let (normal, refr) = if dot > 0. {
-                            (normal * -1., render_params.refraction_index)
-                        } else {
-                            (normal, 1. / render_params.refraction_index)
-                        };
                         let cost1 = glm::dot(normal, *ray.direction()) * -1.;
                         let cost2 = 1.0 - refr.powi(2) * (1. - cost1.powi(2));
                         if cost2 > 0. {
