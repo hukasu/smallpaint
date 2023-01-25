@@ -33,15 +33,11 @@ impl Plane {
 
 impl SceneObjectGeometry for Plane {
     fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
-        let test = glm::dot(self.normal, *ray.direction());
-        if !glm::is_approx_eq(&test, &0.) {
-            let t = (glm::dot(self.normal, self.point - *ray.origin()))/(test);
+        let dot = glm::dot(self.normal, *ray.direction());
+        if !glm::is_approx_eq(&dot, &0.) {
+            let t = (glm::dot(self.normal, self.point - *ray.origin()))/(dot);
             if t > SELFINTERSECTION_TOLERANCE {
-                if test > 0. {
-                    Some((self.normal * -1., t))
-                } else {
-                    Some((self.normal, t))
-                }
+                Some((self.normal, t))
             } else {
                 None
             }
