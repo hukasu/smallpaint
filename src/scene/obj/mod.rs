@@ -6,7 +6,26 @@ pub use plane::Plane;
 mod sphere;
 pub use sphere::Sphere;
 
+mod cylinder;
+pub use cylinder::{Cylinder, CylinderType};
+
 pub const SELFINTERSECTION_TOLERANCE: f64 = 1e-6;
+
+#[derive(Debug)]
+pub enum SceneObjectError {
+    RefractiveCylinderConstraintError
+}
+
+impl std::fmt::Display for SceneObjectError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let m = match self {
+            SceneObjectError::RefractiveCylinderConstraintError => String::from("A refractive cylinder must be Double Capped.")
+        };
+        writeln!(f, "{}", m)
+    }
+}
+
+impl std::error::Error for SceneObjectError {}
 
 pub struct SceneObjectIntersection<'a> {
     object: &'a SceneObject,
@@ -105,6 +124,36 @@ impl SceneObject {
                     center,
                     radius
                 )
+            )
+        }
+    }
+
+    pub fn new_cylinder(
+        color: glm::DVec3,
+        emission: f64,
+        material: SceneObjectMaterial,
+        axis: Ray,
+        height: f64,
+        radius: f64,
+        ctype: CylinderType
+    ) -> Result<Self, SceneObjectError> {
+        if matches!(material, SceneObjectMaterial::Refractive) && !matches!(ctype, CylinderType::DoubleCap) {
+            Err(SceneObjectError::RefractiveCylinderConstraintError)
+        } else {
+            Ok(     
+                Self {
+                    color,
+                    emission,
+                    material,
+                    geometry: Box::new(
+                        Cylinder::new(
+                            axis,
+                            height,
+                            radius,
+                            ctype
+                        )
+                    )
+                }
             )
         }
     }
