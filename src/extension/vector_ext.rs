@@ -7,7 +7,8 @@ impl<V> OrthonormalVectorExt<V> for glm::Vector3<V>
 where V: glm::BaseFloat + glm::GenFloat<V> {
     fn orthonormal(&self) -> (glm::Vector3<V>, glm::Vector3<V>) {
         let v = glm::normalize(*self);
-        let va = if glm::is_approx_eq(&v, &glm::Vector3::new(V::one(), V::zero(), V::zero())) {
+        let dot = glm::dot(v, glm::Vector3::new(V::one(), V::zero(), V::zero()));
+        let va = if glm::is_approx_eq(&dot, &V::one()) || glm::is_approx_eq(&dot, &-V::one()) {
             glm::cross(v, glm::Vector3::new(V::zero(), V::one(), V::zero()))
         } else {
             glm::cross(v, glm::Vector3::new(V::one(), V::zero(), V::zero()))
@@ -31,9 +32,12 @@ mod tests {
 
     #[test]
     fn orthonormal_unit_vector_test() {
-        orthonormal_unit_vector_common_test(&glm::dvec3(1.0, 0., 0.));
-        orthonormal_unit_vector_common_test(&glm::dvec3(0.0, 1.0, 0.0));
+        orthonormal_unit_vector_common_test(&glm::dvec3(1., 0., 0.));
+        orthonormal_unit_vector_common_test(&glm::dvec3(0., 1., 0.));
         orthonormal_unit_vector_common_test(&glm::dvec3(0., 0., 1.));
+        orthonormal_unit_vector_common_test(&glm::dvec3(-1., 0., 0.));
+        orthonormal_unit_vector_common_test(&glm::dvec3(0., -1., 0.));
+        orthonormal_unit_vector_common_test(&glm::dvec3(0., 0., -1.));
     }
 
     #[test]
