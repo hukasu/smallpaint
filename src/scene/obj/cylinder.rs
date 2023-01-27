@@ -102,8 +102,8 @@ impl SceneObjectGeometry for Cylinder {
     fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
         let tests = [
             self.surface_intersection(ray),
-            self.cap_intersection(ray, true),
-            self.cap_intersection(ray, false)
+            if self.height.is_finite() { self.cap_intersection(ray, true) } else { None },
+            if self.height.is_finite() { self.cap_intersection(ray, false) } else { None }
         ];
         tests.into_iter()
             .filter_map(|t| t)
