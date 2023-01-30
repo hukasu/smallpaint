@@ -9,17 +9,26 @@ pub use sphere::Sphere;
 mod cylinder;
 pub use cylinder::{Cylinder, CylinderType};
 
+mod lens;
+pub use lens::Lens;
+
 pub const SELFINTERSECTION_TOLERANCE: f64 = 1e-6;
 
 #[derive(Debug)]
 pub enum SceneObjectError {
-    RefractiveCylinderConstraintError
+    RefractiveCylinderConstraintError,
+    LensFacesTooShortError,
+    LensTooThinError,
+    LensConcaveFaceTooDeepError
 }
 
 impl std::fmt::Display for SceneObjectError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let m = match self {
-            SceneObjectError::RefractiveCylinderConstraintError => String::from("A refractive cylinder must be Double Capped.")
+            SceneObjectError::RefractiveCylinderConstraintError => String::from("A refractive cylinder must be Double Capped."),
+            SceneObjectError::LensFacesTooShortError => String::from("One of the faces of the lens has an absolute radius smaller than the the radius of the lens."),
+            SceneObjectError::LensTooThinError => String::from("The lens is too thin."),
+            SceneObjectError::LensConcaveFaceTooDeepError => String::from("A concave face is too deep. The concave face can't have a depth too close to half of the thickness.")
         };
         writeln!(f, "{}", m)
     }
@@ -156,6 +165,33 @@ impl SceneObject {
                 }
             )
         }
+    }
+
+    pub fn new_lens(
+        color: glm::DVec3,
+        emission: f64,
+        material: SceneObjectMaterial,
+        axis: Ray,
+        thickness: f64,
+        radius: f64,
+        front_radius: f64,
+        back_radius: f64
+    ) -> Result<Self, SceneObjectError> {
+        let lens = Lens::new(
+            axis,
+            thickness,
+            radius,
+            front_radius,
+            back_radius
+        )?;
+        Ok(
+            Self {
+                color,
+                emission,
+                material,
+                geometry: Box::new(lens)
+            }
+        )
     }
 
     pub fn color(&self) -> &glm::DVec3 {
