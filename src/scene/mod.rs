@@ -3,6 +3,8 @@ use crate::common::Ray;
 pub mod obj;
 use obj::SELFINTERSECTION_TOLERANCE;
 
+use self::obj::SceneObject;
+
 #[cfg(feature = "sample-scenes")]
 pub mod sample;
 
@@ -38,7 +40,7 @@ impl Scene {
 
     pub fn new_with_vec_storage() -> Self {
         Self {
-            objects: Box::new(Vec::new())
+            objects: Box::<Vec<SceneObject>>::default()
         }
     }
 

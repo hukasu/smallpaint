@@ -21,11 +21,7 @@ impl RussianRouletteTerminator {
 
 impl Terminator for RussianRouletteTerminator {
     fn terminate(&self, depth: usize) -> bool {
-        if depth >= self.roulette_start_depth && RandomGen::rand2() <= self.stop_probability {
-            true
-        } else {
-            false
-        }
+        depth >= self.roulette_start_depth && RandomGen::rand2() <= self.stop_probability
     }
 
     fn factor(&self, depth: usize) -> f64 {

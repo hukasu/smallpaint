@@ -12,7 +12,7 @@ impl Writer for PPMWriter {
         let mut f = std::fs::File::create(path).unwrap();
 
         writeln!(f, "P3").unwrap();
-        writeln!(f, "{} {}", width, height).unwrap();
+        writeln!(f, "{width} {height}").unwrap();
         writeln!(f, "255").unwrap();
         image.iter()
             .for_each(

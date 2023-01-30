@@ -12,6 +12,12 @@ impl RandomSampler {
     }
 }
 
+impl Default for RandomSampler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Sampler for RandomSampler {
     fn hemisphere(&self) -> glm::DVec3 {
         let (u1, u2) = self.next();

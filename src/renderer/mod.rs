@@ -51,7 +51,7 @@ impl Renderer {
             }
             Ok(())
         } else {
-            return Err(String::from("Failed to initialize renderer"))
+            Err(String::from("Failed to initialize renderer"))
         }
     }
 
@@ -62,7 +62,7 @@ impl Renderer {
             }
             Ok(())
         } else {
-            return Err(String::from("Failed to initialize renderer"))
+            Err(String::from("Failed to initialize renderer"))
         }
     }
 
@@ -73,7 +73,7 @@ impl Renderer {
             }
             Ok(())
         } else {
-            return Err(String::from("Failed to initialize renderer"))
+            Err(String::from("Failed to initialize renderer"))
         }
     }
 

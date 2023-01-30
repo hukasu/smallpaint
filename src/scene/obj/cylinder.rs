@@ -85,11 +85,7 @@ impl Cylinder {
                     .filter(
                         |int| {
                             let hp = *ray.origin() + *ray.direction() * int.1;
-                            if glm::distance(*p.point(), hp) < self.radius {
-                                true
-                            } else {
-                                false
-                            }
+                            glm::distance(*p.point(), hp) < self.radius
                         }
                     )
             },
@@ -106,7 +102,7 @@ impl SceneObjectGeometry for Cylinder {
             if self.height.is_finite() { self.cap_intersection(ray, false) } else { None }
         ];
         tests.into_iter()
-            .filter_map(|t| t)
+            .flatten()
             .min_by(|(_, a), (_, b)| a.total_cmp(b))
     }
 

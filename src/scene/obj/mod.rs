@@ -30,7 +30,7 @@ impl std::fmt::Display for SceneObjectError {
             SceneObjectError::LensTooThinError => String::from("The lens is too thin."),
             SceneObjectError::LensConcaveFaceTooDeepError => String::from("A concave face is too deep. The concave face can't have a depth too close to half of the thickness.")
         };
-        writeln!(f, "{}", m)
+        writeln!(f, "{m}")
     }
 }
 
@@ -56,11 +56,11 @@ impl<'a> SceneObjectIntersection<'a> {
     }
 
     pub fn object(&self) -> &SceneObject {
-        &self.object
+        self.object
     }
 
     pub fn normal(&self) -> glm::DVec3 {
-        self.normal.clone()
+        self.normal
     }
 
     pub fn ray_length(&self) -> f64 {

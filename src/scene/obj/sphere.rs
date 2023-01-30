@@ -44,14 +44,12 @@ impl SceneObjectGeometry for Sphere {
                 let intersect = *ray.origin() + *ray.direction() * t;
                 Some((glm::normalize(intersect - self.center), t))
             }
-            else {
-                if sol1 > SELFINTERSECTION_TOLERANCE {
-                    let t = sol1 / 2.;
-                    let intersect = *ray.origin() + *ray.direction() * t;
-                    Some((glm::normalize(intersect - self.center), t))
-                }
-                else { None }
+            else if sol1 > SELFINTERSECTION_TOLERANCE {
+                let t = sol1 / 2.;
+                let intersect = *ray.origin() + *ray.direction() * t;
+                Some((glm::normalize(intersect - self.center), t))
             }
+            else { None }
         } else { None }
     }
 

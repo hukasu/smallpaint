@@ -24,6 +24,12 @@ impl HaltonSampler {
     }
 }
 
+impl Default for HaltonSampler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Sampler for HaltonSampler {
     fn hemisphere(&self) -> glm::DVec3 {
         let (u1, u2) = self.next();
