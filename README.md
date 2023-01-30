@@ -54,6 +54,7 @@ The `Scene` holds the geometries to be rendered.
 | Plane | An infinite plane |
 | Sphere | An sphere |
 | Cylinder | An cylinder. Can be `ThroughHole`, `SingleCap`, or `DoubleCap`.<br/>**Note**: `SceneObjects` with material `Refractive` can only be `DoubleCap`. |  
+| Lens | A cylindrical lens with spherical faces.<br/>The spheres that define each face of the lens follow the same axis as the cylinder.<br/>**Note**: Radius of a face can't be smaller than the lens radius.<br/>**Note**: There are cases where convex (negative radius) faces will intersect with eachother, which will `panic`. |  
 
 `SceneObject`s can be of 3 different `SceneObjectMaterial`. The material defines how the object interacts with the ray:
 | Name | Description |
