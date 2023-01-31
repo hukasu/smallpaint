@@ -11,8 +11,8 @@ The `Tracer` calculates the bounces and returns the final color for a given pixe
 There are 2 `Tracer`s available:  
 | Name | Capabilities |
 |---|---|
-| SimpleTracer | <ul><li>Refractive Caustics</li></ul> |
-| FresnelTracer | <ul><li>Refractive Caustics</li><li>Fresnel reflections</li></ul> |  
+| SimpleTracer | <ul><li>Caustics</li></ul> |
+| FresnelTracer | <ul><li>Caustics</li><li>Fresnel reflections</li></ul> |  
 
 ### Camera
 The `Camera` generates rays for a given pixel in the "sensor".
