@@ -7,6 +7,9 @@ pub use three_cylinders_with_lights::ThreeCylindersWithLightsSampleScene;
 mod lenses_and_bars;
 pub use lenses_and_bars::LensesAndBars;
 
+mod ring_caustics;
+pub use ring_caustics::RingCaustics;
+
 use crate::scene::Scene;
 
 pub trait SampleScene {
