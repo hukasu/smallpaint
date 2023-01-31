@@ -132,12 +132,22 @@ impl Lens {
             self.axis.clone(),
             self.thickness,
             self.radius,
-            super::CylinderType::ThroughHole
+            super::CylinderType::CustomCap
         ).intersect(ray)
+            .map(
+                |(normal, t)| {
+                    if glm::dot(normal, *ray.direction()).is_sign_positive() {
+                        (normal * -1., t)
+                    } else {
+                        (normal, t)
+                    }
+                }
+            )
     }
 
     fn face_intersection(&self, ray: &Ray, front_face: bool, depth: u64) -> Option<(glm::DVec3, f64)> {
-        if depth >= 2 { return None }
+        // TODO understand how it's possible for a ray to intersect a sphere more than once
+        if depth >= 2 { return None; }
         let face = if front_face {
             &self.front
         } else {
@@ -148,16 +158,13 @@ impl Lens {
                 |(int_normal, t)| {
                     let hp = *ray.origin() + *ray.direction() * t;
                     let p_a = hp - *self.axis.origin();
-                    let dist = glm::length(p_a - *self.axis.direction() * (glm::dot(p_a, *self.axis.direction())));
+                    let dist = glm::length(p_a - *self.axis.direction() * glm::dot(p_a, *self.axis.direction()));
                     if dist < self.radius && glm::distance(*self.axis.origin(), hp) < face.radius() {
-                        Some((
-                            if glm::dot(*ray.direction(), int_normal).is_sign_positive() {
-                                int_normal * -1.
-                            } else {
-                                int_normal
-                            },
-                            t
-                        ))
+                        let normal = match face {
+                            LensFace::Convex(_) => int_normal,
+                            LensFace::Concave(_) => int_normal * -1.
+                        };
+                        Some((normal, t))
                     } else {
                         self.face_intersection(
                             &Ray::new(

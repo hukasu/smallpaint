@@ -10,7 +10,8 @@ use glm::GenNum;
 pub enum CylinderType {
     ThroughHole,
     SingleCap,
-    DoubleCap
+    DoubleCap,
+    CustomCap
 }
 
 pub struct Cylinder {
@@ -104,6 +105,23 @@ impl SceneObjectGeometry for Cylinder {
         tests.into_iter()
             .flatten()
             .min_by(|(_, a), (_, b)| a.total_cmp(b))
+            .map(
+                |(normal, t)| {
+                    // Normal always points outward if double capped,
+                    // but can point inwards if single capped or through hole
+                    // Custom capped cyliders are assumed to having both caps
+                    match self.ctype {
+                        CylinderType::DoubleCap | CylinderType::CustomCap => (normal, t),
+                        _ => {
+                            if glm::dot(normal, *ray.direction()).is_sign_positive() {
+                                (normal * -1., t)
+                            } else {
+                                (normal, t)
+                            }
+                        }
+                    }
+                }
+            )
     }
 
     fn bounding_box(&self) -> (glm::DVec3, glm::DVec3) {
