@@ -27,8 +27,8 @@ impl Tracer for SimpleTracer {
         scene: &Scene,
         render_params: &RenderParams,
         depth: usize
-    ) -> glm::DVec3 {
-        let zero = glm::to_dvec3(0.);
+    ) -> nalgebra_glm::DVec3 {
+        let zero = nalgebra_glm::zero();
         if self.0.terminate(depth) {
             zero
         } else {
@@ -40,10 +40,10 @@ impl Tracer for SimpleTracer {
                 let hp = *ray.origin() + *ray.direction() * inter.ray_length();
                 let normal = inter.normal();
 
-                let emission_color = glm::to_dvec3(inter.object().emission()) * rr_factor;
+                let emission_color = nalgebra_glm::DVec3::from_element(inter.object().emission()) * rr_factor;
 
                 let (normal, refr) = {
-                    let internal_inter_test = glm::dot(normal, *ray.direction());
+                    let internal_inter_test = normal.dot(ray.direction());
                     if internal_inter_test > 0. {
                         (normal * -1., render_params.refraction_index)
                     } else {
@@ -53,8 +53,8 @@ impl Tracer for SimpleTracer {
 
                 let material_color = match inter.object().material() {
                     SceneObjectMaterial::Diffuse => {
-                        let bounce_dir = glm::normalize(normal + self.1.hemisphere());
-                        let cost = glm::dot(bounce_dir, normal);
+                        let bounce_dir = (normal + self.1.hemisphere()).normalize();
+                        let cost = bounce_dir.dot(&normal);
                         let bounce = Ray::new(
                             hp,
                             bounce_dir
@@ -65,13 +65,13 @@ impl Tracer for SimpleTracer {
                             render_params,
                             depth + 1
                         );
-                        ((diffuse_color * *inter.object().color()) * cost) * 0.1 * rr_factor
+                        ((diffuse_color.component_mul(inter.object().color())) * cost) * 0.1 * rr_factor
                     },
                     SceneObjectMaterial::Specular => {
-                        let cost = glm::dot(*ray.direction(), normal);
+                        let cost = ray.direction().dot(&normal);
                         let bounce = Ray::new(
                             hp,
-                            glm::normalize(*ray.direction() - normal * (cost * 2.))
+                            (ray.direction() - normal * (cost * 2.)).normalize()
                         );
                         self.trace(
                             bounce,
@@ -81,12 +81,12 @@ impl Tracer for SimpleTracer {
                         ) * rr_factor
                     },
                     SceneObjectMaterial::Refractive => {
-                        let cost1 = glm::dot(normal, *ray.direction()) * -1.;
+                        let cost1 = normal.dot(ray.direction()) * -1.;
                         let cost2 = 1.0 - refr.powi(2) * (1. - cost1.powi(2));
                         if cost2 > 0. {
                             let bounce = Ray::new(
                                 hp,
-                                glm::normalize(*ray.direction() * refr + (normal * (refr * cost1 - cost2.sqrt())))
+                                (ray.direction() * refr + (normal * (refr * cost1 - cost2.sqrt()))).normalize()
                             );
                             self.trace(
                                 bounce,

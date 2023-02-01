@@ -18,7 +18,7 @@ pub trait Tracer: std::marker::Sync {
         scene: &Scene,
         render_params: &RenderParams,
         depth: usize
-    ) -> glm::DVec3;
+    ) -> nalgebra_glm::DVec3;
 
     fn capabilities() -> TracerCapabilities where Self: Sized;
 }

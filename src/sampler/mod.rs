@@ -6,5 +6,5 @@ pub use random_sampler::RandomSampler;
 
 /// Generaters new directions to sample
 pub trait Sampler: std::marker::Sync {
-    fn hemisphere(&self) -> glm::DVec3;
+    fn hemisphere(&self) -> nalgebra_glm::DVec3;
 }

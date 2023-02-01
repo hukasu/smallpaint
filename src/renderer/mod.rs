@@ -22,7 +22,7 @@ pub struct Renderer {
     render_params: RenderParams,
     renderer_status: std::sync::Mutex<RendererStatus>,
     current_sample: std::sync::Mutex<u64>,
-    image: std::sync::Mutex<Vec<glm::DVec3>>
+    image: std::sync::Mutex<Vec<nalgebra_glm::DVec3>>
 }
 
 impl Renderer {
@@ -39,7 +39,7 @@ impl Renderer {
             renderer_status: std::sync::Mutex::new(RendererStatus::Blank),
             current_sample: std::sync::Mutex::new(0),
             image: std::sync::Mutex::new(
-                vec![glm::to_dvec3(0.); width * height]
+                vec![nalgebra_glm::zero(); width * height]
             )
         }
     }
@@ -82,7 +82,7 @@ impl Renderer {
         tracer: &dyn Tracer,
         camera: &dyn Camera,
         scene: &Scene
-    ) -> Vec<glm::DVec3> {
+    ) -> Vec<nalgebra_glm::DVec3> {
         // Initialy the values in `pass` will be in order of conclusion
         // so map includes the index of the pixel
         let mut pass = (0..(self.width * self.height)).par_bridge()
@@ -91,8 +91,8 @@ impl Renderer {
                     let x = i / self.height;
                     let y = i % self.height;
                     let ray = Ray::new(
-                        glm::to_dvec3(0.),
-                        glm::normalize(camera.view_with_filtering(x as f64, y as f64))
+                        nalgebra_glm::zero(),
+                        camera.view_with_filtering(x as f64, y as f64).normalize()
                     );
                     (i, tracer.trace(ray, scene, &self.render_params, 0))
                 }
@@ -139,7 +139,7 @@ impl Renderer {
                             pixels.iter_mut().zip(pass)
                                 .for_each(
                                     |(i, p)| {
-                                        *i = *i + p;
+                                        *i += p;
                                     }
                                 );
                         } else {
@@ -180,7 +180,7 @@ impl Renderer {
         )
     }
 
-    pub fn get_image(&self) -> (std::sync::MutexGuard<Vec<glm::DVec3>>, std::sync::MutexGuard<u64>) {
+    pub fn get_image(&self) -> (std::sync::MutexGuard<Vec<nalgebra_glm::DVec3>>, std::sync::MutexGuard<u64>) {
         (
             self.image.lock().unwrap(),
             self.current_sample.lock().unwrap()

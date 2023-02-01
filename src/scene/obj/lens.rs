@@ -1,5 +1,3 @@
-use glm::GenNum;
-
 use crate::{
     common::Ray,
     scene::obj::{SceneObjectGeometry, Sphere},
@@ -18,7 +16,7 @@ enum LensFace {
 }
 
 impl LensFace {
-    pub fn center(&self) -> glm::DVec3 {
+    pub fn center(&self) -> &nalgebra_glm::DVec3 {
         match self {
             LensFace::Concave(sp) => sp,
             LensFace::Convex(sp) => sp,
@@ -32,7 +30,7 @@ impl LensFace {
         }.radius()
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
+    pub fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
         match self {
             LensFace::Concave(sp) => sp,
             LensFace::Convex(sp) => sp,
@@ -67,17 +65,17 @@ impl Lens {
     ) -> Result<Self, SceneObjectError> {
         if front_radius.abs() < radius || back_radius.abs() < radius {
             Err(SceneObjectError::LensFacesTooShortError)
-        } else if (thickness / 2.) <= SELFINTERSECTION_TOLERANCE { 
+        } else if thickness <= SELFINTERSECTION_TOLERANCE || (radius / 2.) <= SELFINTERSECTION_TOLERANCE { 
             Err(SceneObjectError::LensTooThinError)
         } else {
             let front = Lens::face_construction(*axis.origin(), *axis.direction(), thickness, radius, front_radius);
-            let back = Lens::face_construction(*axis.origin(), *axis.direction() * -1., thickness, radius, back_radius);
+            let back = Lens::face_construction(*axis.origin(), axis.direction() * -1., thickness, radius, back_radius);
 
-            let front_pos = glm::distance(*axis.origin(), front.center()) * match front {
+            let front_pos = axis.origin().metric_distance(front.center()) * match front {
                 LensFace::Concave(_) => 1.,
                 LensFace::Convex(_) => -1.
             };
-            let back_pos = -1. * glm::distance(*axis.origin(), back.center()) * match back {
+            let back_pos = -1. * axis.origin().metric_distance(back.center()) * match back {
                 LensFace::Concave(_) => 1.,
                 LensFace::Convex(_) => -1.
             };
@@ -100,8 +98,8 @@ impl Lens {
     }
 
     fn face_construction(
-        position: glm::DVec3,
-        normal: glm::DVec3,
+        position: nalgebra_glm::DVec3,
+        normal: nalgebra_glm::DVec3,
         thickness: f64,
         radius: f64,
         face_r: f64
@@ -127,7 +125,7 @@ impl Lens {
         }
     }
 
-    fn surface_intersection(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
+    fn surface_intersection(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
         Cylinder::new(
             self.axis.clone(),
             self.thickness,
@@ -136,7 +134,7 @@ impl Lens {
         ).intersect(ray)
             .map(
                 |(normal, t)| {
-                    if glm::dot(normal, *ray.direction()).is_sign_positive() {
+                    if normal.dot(ray.direction()).is_sign_positive() {
                         (normal * -1., t)
                     } else {
                         (normal, t)
@@ -145,7 +143,7 @@ impl Lens {
             )
     }
 
-    fn face_intersection(&self, ray: &Ray, front_face: bool, depth: u64) -> Option<(glm::DVec3, f64)> {
+    fn face_intersection(&self, ray: &Ray, front_face: bool, depth: u64) -> Option<(nalgebra_glm::DVec3, f64)> {
         // TODO understand how it's possible for a ray to intersect a sphere more than once
         if depth >= 2 { return None; }
         let face = if front_face {
@@ -158,8 +156,8 @@ impl Lens {
                 |(int_normal, t)| {
                     let hp = *ray.origin() + *ray.direction() * t;
                     let p_a = hp - *self.axis.origin();
-                    let dist = glm::length(p_a - *self.axis.direction() * glm::dot(p_a, *self.axis.direction()));
-                    if dist < self.radius && glm::distance(*self.axis.origin(), hp) < face.radius() {
+                    let dist = (p_a - *self.axis.direction() * p_a.dot(self.axis.direction())).magnitude();
+                    if dist < self.radius && self.axis.origin().metric_distance(&hp) < face.radius() {
                         let normal = match face {
                             LensFace::Convex(_) => int_normal,
                             LensFace::Concave(_) => int_normal * -1.
@@ -181,7 +179,7 @@ impl Lens {
 }
 
 impl SceneObjectGeometry for Lens {
-    fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
+    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
         let tests = [
             self.surface_intersection(ray),
             if self.thickness.is_finite() { self.face_intersection(ray, true, 0) } else { None },
@@ -192,11 +190,11 @@ impl SceneObjectGeometry for Lens {
             .min_by(|(_, a), (_, b)| a.total_cmp(b))
     }
 
-    fn bounding_box(&self) -> (glm::DVec3, glm::DVec3) {
-        let top_cap_ext = self.front.radius() - glm::distance(*self.axis.origin(), self.front.center());
-        let bot_cap_ext = self.back.radius() - glm::distance(*self.axis.direction(), self.back.center());
+    fn bounding_box(&self) -> (nalgebra_glm::DVec3, nalgebra_glm::DVec3) {
+        let top_cap_ext = self.front.radius() - self.axis.origin().metric_distance(self.front.center());
+        let bot_cap_ext = self.back.radius() - self.axis.direction().metric_distance(self.back.center());
         let (axis_orth_a, axis_orth_b) = self.axis.direction().orthonormal();
-        let (axis_orth_a, axis_orth_b) = (glm::normalize(axis_orth_a), glm::normalize(axis_orth_b));
+        let (axis_orth_a, axis_orth_b) = (axis_orth_a.normalize(), axis_orth_b.normalize());
         let top = *self.axis.origin() + (*self.axis.direction() * ((self.thickness / 2.) + top_cap_ext)).map(|n| if n.is_nan() { 0. } else { n });
         let bottom = *self.axis.origin() - (*self.axis.direction() * ((self.thickness / 2.) + bot_cap_ext)).map(|n| if n.is_nan() { 0. } else { n });
         [
@@ -210,15 +208,15 @@ impl SceneObjectGeometry for Lens {
             bottom - (axis_orth_b * self.radius),
         ].into_iter()
             .fold(
-                (glm::to_dvec3(std::f64::INFINITY), glm::to_dvec3(std::f64::NEG_INFINITY)),
+                (nalgebra_glm::DVec3::from_element(std::f64::INFINITY), nalgebra_glm::DVec3::from_element(std::f64::NEG_INFINITY)),
                 |state, cur| {
                     (
-                        glm::dvec3(
+                        nalgebra_glm::DVec3::new(
                             cur.x.min(state.0.x),
                             cur.y.min(state.0.y),
                             cur.z.min(state.0.z)
                         ),
-                        glm::dvec3(
+                        nalgebra_glm::DVec3::new(
                             cur.x.max(state.1.x),
                             cur.y.max(state.1.y),
                             cur.z.max(state.1.z)
@@ -236,7 +234,7 @@ mod tests {
     #[test]
     fn infinite_radius_faces() {
             let lens = Lens::new(
-            Ray::new(glm::to_dvec3(0.), glm::dvec3(1., 0., 0.)),
+            Ray::new(nalgebra_glm::zero(), nalgebra_glm::DVec3::new(1., 0., 0.)),
             1.,
             2.,
             std::f64::INFINITY,
@@ -252,11 +250,21 @@ mod tests {
 
     #[test]
     fn lens_too_thin() {
-        // Lens with both faces being flat
         match Lens::new(
-            Ray::new(glm::to_dvec3(0.), glm::dvec3(1., 0., 0.)),
+            Ray::new(nalgebra_glm::zero(), nalgebra_glm::DVec3::new(1., 0., 0.)),
             1.,
             SELFINTERSECTION_TOLERANCE,
+            std::f64::NEG_INFINITY,
+            std::f64::NEG_INFINITY,
+        ) {
+            Ok(_) => panic!("Expected error"),
+            Err(SceneObjectError::LensTooThinError) => (),
+            Err(_) => panic!("Expected `LensTooThinError`")   
+        }
+        match Lens::new(
+            Ray::new(nalgebra_glm::zero(), nalgebra_glm::DVec3::new(1., 0., 0.)),
+            SELFINTERSECTION_TOLERANCE,
+            1.,
             std::f64::NEG_INFINITY,
             std::f64::NEG_INFINITY,
         ) {

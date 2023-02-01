@@ -38,14 +38,14 @@ impl std::error::Error for SceneObjectError {}
 
 pub struct SceneObjectIntersection<'a> {
     object: &'a SceneObject,
-    normal: glm::DVec3,
+    normal: nalgebra_glm::DVec3,
     ray_length: f64
 }
 
 impl<'a> SceneObjectIntersection<'a> {
     pub fn new(
         object: &'a SceneObject,
-        normal: glm::DVec3,
+        normal: nalgebra_glm::DVec3,
         ray_length: f64
     ) -> Self {
         Self {
@@ -59,7 +59,7 @@ impl<'a> SceneObjectIntersection<'a> {
         self.object
     }
 
-    pub fn normal(&self) -> glm::DVec3 {
+    pub fn normal(&self) -> nalgebra_glm::DVec3 {
         self.normal
     }
 
@@ -76,7 +76,7 @@ pub enum SceneObjectMaterial {
 } 
 
 pub struct SceneObject {
-    color: glm::DVec3,
+    color: nalgebra_glm::DVec3,
     emission: f64,
     material: SceneObjectMaterial,
     geometry: Box<dyn SceneObjectGeometry>
@@ -84,7 +84,7 @@ pub struct SceneObject {
 
 impl SceneObject {
     pub fn new(
-        color: glm::DVec3,
+        color: nalgebra_glm::DVec3,
         emission: f64,
         material: SceneObjectMaterial,
         geometry: Box<dyn SceneObjectGeometry>
@@ -98,11 +98,11 @@ impl SceneObject {
     }
 
     pub fn new_plane(
-        color: glm::DVec3,
+        color: nalgebra_glm::DVec3,
         emission: f64,
         material: SceneObjectMaterial,
-        point: glm::DVec3,
-        normal: glm::DVec3,
+        point: nalgebra_glm::DVec3,
+        normal: nalgebra_glm::DVec3,
     ) -> Self {
         Self {
             color,
@@ -118,10 +118,10 @@ impl SceneObject {
     }
 
     pub fn new_sphere(
-        color: glm::DVec3,
+        color: nalgebra_glm::DVec3,
         emission: f64,
         material: SceneObjectMaterial,
-        center: glm::DVec3,
+        center: nalgebra_glm::DVec3,
         radius: f64
     ) -> Self {
         Self {
@@ -138,7 +138,7 @@ impl SceneObject {
     }
 
     pub fn new_cylinder(
-        color: glm::DVec3,
+        color: nalgebra_glm::DVec3,
         emission: f64,
         material: SceneObjectMaterial,
         axis: Ray,
@@ -167,8 +167,9 @@ impl SceneObject {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn new_lens(
-        color: glm::DVec3,
+        color: nalgebra_glm::DVec3,
         emission: f64,
         material: SceneObjectMaterial,
         axis: Ray,
@@ -194,7 +195,7 @@ impl SceneObject {
         )
     }
 
-    pub fn color(&self) -> &glm::DVec3 {
+    pub fn color(&self) -> &nalgebra_glm::DVec3 {
         &self.color
     }
 
@@ -206,16 +207,16 @@ impl SceneObject {
         self.material
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)> {
+    pub fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
         self.geometry.intersect(ray)
     }
 
-    pub fn bounding_box(&self) -> (glm::DVec3, glm::DVec3) {
+    pub fn bounding_box(&self) -> (nalgebra_glm::DVec3, nalgebra_glm::DVec3) {
         self.geometry.bounding_box()
     }
 }
 
 pub trait SceneObjectGeometry: std::marker::Sync {
-    fn intersect(&self, ray: &Ray) -> Option<(glm::DVec3, f64)>;
-    fn bounding_box(&self) -> (glm::DVec3, glm::DVec3);
+    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)>;
+    fn bounding_box(&self) -> (nalgebra_glm::DVec3, nalgebra_glm::DVec3);
 }

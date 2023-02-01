@@ -14,9 +14,11 @@ name = "fresnel_example"
 required-features = ["sample-scenes"]
 
 [dependencies]
-glm = { git = "https://github.com/Sarvadi/glm-rs" }
+approx = "0.5.1"
+nalgebra = "0.32.1"
+nalgebra-glm = "0.18.0"
 halton = "0.2.1"
-rayon = "1.6.0"
+rayon = "1.6.1"
 rand = {version = "0.8.5", features = ["std_rng"]}
 
 [features]
