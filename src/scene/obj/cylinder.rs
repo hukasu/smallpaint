@@ -5,6 +5,7 @@ use crate::{
 
 use super::SELFINTERSECTION_TOLERANCE;
 
+#[derive(Debug)]
 pub enum CylinderType {
     ThroughHole,
     SingleCap,
@@ -12,6 +13,7 @@ pub enum CylinderType {
     CustomCap
 }
 
+#[derive(Debug)]
 pub struct Cylinder {
     axis: Ray,
     height: f64,

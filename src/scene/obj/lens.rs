@@ -1,12 +1,12 @@
 use crate::{
     common::Ray,
-    scene::obj::{SceneObjectGeometry, Sphere},
-    extension::vector_ext::OrthonormalVectorExt
-};
-
-use super::{
-    SceneObjectError,
-    SELFINTERSECTION_TOLERANCE, Cylinder
+    scene::obj::{
+        SceneObjectGeometry,
+        SceneObjectError,
+        Sphere,
+        Cylinder,
+        SELFINTERSECTION_TOLERANCE
+    }
 };
 
 #[derive(Debug)]
@@ -39,6 +39,7 @@ impl LensFace {
 }
 
 /// Circular lens object
+#[derive(Debug)]
 pub struct Lens {
     axis: Ray,
     thickness: f64,
@@ -191,39 +192,15 @@ impl SceneObjectGeometry for Lens {
     }
 
     fn bounding_box(&self) -> (nalgebra_glm::DVec3, nalgebra_glm::DVec3) {
-        let top_cap_ext = self.front.radius() - self.axis.origin().metric_distance(self.front.center());
-        let bot_cap_ext = self.back.radius() - self.axis.direction().metric_distance(self.back.center());
-        let (axis_orth_a, axis_orth_b) = self.axis.direction().orthonormal();
-        let (axis_orth_a, axis_orth_b) = (axis_orth_a.normalize(), axis_orth_b.normalize());
-        let top = *self.axis.origin() + (*self.axis.direction() * ((self.thickness / 2.) + top_cap_ext)).map(|n| if n.is_nan() { 0. } else { n });
-        let bottom = *self.axis.origin() - (*self.axis.direction() * ((self.thickness / 2.) + bot_cap_ext)).map(|n| if n.is_nan() { 0. } else { n });
-        [
-            top + (axis_orth_a * self.radius),
-            top - (axis_orth_a * self.radius),
-            top + (axis_orth_b * self.radius),
-            top - (axis_orth_b * self.radius),
-            bottom + (axis_orth_a * self.radius),
-            bottom - (axis_orth_a * self.radius),
-            bottom + (axis_orth_b * self.radius),
-            bottom - (axis_orth_b * self.radius),
-        ].into_iter()
-            .fold(
-                (nalgebra_glm::DVec3::from_element(std::f64::INFINITY), nalgebra_glm::DVec3::from_element(std::f64::NEG_INFINITY)),
-                |state, cur| {
-                    (
-                        nalgebra_glm::DVec3::new(
-                            cur.x.min(state.0.x),
-                            cur.y.min(state.0.y),
-                            cur.z.min(state.0.z)
-                        ),
-                        nalgebra_glm::DVec3::new(
-                            cur.x.max(state.1.x),
-                            cur.y.max(state.1.y),
-                            cur.z.max(state.1.z)
-                        )
-                    )
-                }
-            )
+        let top = self.axis.origin() + self.axis.direction() * (self.thickness / 2.);
+        let bottom = self.axis.origin() - self.axis.direction() * (self.thickness / 2.);
+        // This creates a really loose bounding box
+        let top_sphere = Sphere::new(top, self.radius).bounding_box();
+        let bottom_sphere = Sphere::new(bottom, self.radius).bounding_box();
+        (
+            nalgebra_glm::min2(&top_sphere.0, &bottom_sphere.0),
+            nalgebra_glm::max2(&top_sphere.1, &bottom_sphere.1),
+        )
     }
 }
 

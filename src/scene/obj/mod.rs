@@ -36,6 +36,7 @@ impl std::fmt::Display for SceneObjectError {
 
 impl std::error::Error for SceneObjectError {}
 
+#[derive(Debug)]
 pub struct SceneObjectIntersection<'a> {
     object: &'a SceneObject,
     normal: nalgebra_glm::DVec3,
@@ -68,13 +69,14 @@ impl<'a> SceneObjectIntersection<'a> {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum SceneObjectMaterial {
     Diffuse,
     Specular,
     Refractive
 } 
 
+#[derive(Debug)]
 pub struct SceneObject {
     color: nalgebra_glm::DVec3,
     emission: f64,
@@ -216,7 +218,7 @@ impl SceneObject {
     }
 }
 
-pub trait SceneObjectGeometry: std::marker::Sync {
+pub trait SceneObjectGeometry: std::fmt::Debug + std::marker::Sync {
     fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)>;
     fn bounding_box(&self) -> (nalgebra_glm::DVec3, nalgebra_glm::DVec3);
 }
