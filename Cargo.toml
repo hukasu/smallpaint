@@ -23,3 +23,10 @@ rand = {version = "0.8.5", features = ["std_rng"]}
 
 [features]
 sample-scenes = []
+
+[dev-dependencies]
+criterion = "0.4.0"
+
+[[bench]]
+name = "storage-bench"
+harness = false
