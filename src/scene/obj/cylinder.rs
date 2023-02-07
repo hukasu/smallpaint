@@ -36,7 +36,7 @@ impl Cylinder {
         }
     }
 
-    fn surface_intersection(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
+    fn surface_intersection(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         let rdcd = ray.direction().dot(self.axis.direction());
         let roro = ray.origin().dot(ray.origin());
         let rord = ray.origin().dot(ray.direction());
@@ -59,7 +59,7 @@ impl Cylinder {
                             if m.abs() < self.height / 2. {
                                 let axis_point = self.axis.origin() + self.axis.direction() * m;
                                 let hit_point = ray.origin() + ray.direction() * t;
-                                Some(((hit_point - axis_point).normalize(), t))
+                                Some((hit_point, (hit_point - axis_point).normalize(), t))
                             } else {
                                 None
                             }
@@ -68,13 +68,13 @@ impl Cylinder {
                         }
                     }
                 )
-                .min_by(|(_, a), (_, b)| a.total_cmp(b))
+                .min_by(|(_, _, a), (_, _, b)| a.total_cmp(b))
         } else {
             None
         }
     }
 
-    fn cap_intersection(&self, ray: &Ray, top_cap: bool) -> Option<(nalgebra_glm::DVec3, f64)> {
+    fn cap_intersection(&self, ray: &Ray, top_cap: bool) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         let p = if top_cap {
             Plane::new(self.axis.origin() + (self.axis.direction() * (self.height / 2.)), *self.axis.direction())
         } else {
@@ -85,7 +85,7 @@ impl Cylinder {
                 p.intersect(ray)
                     .filter(
                         |int| {
-                            let hp = ray.origin() + ray.direction() * int.1;
+                            let hp = ray.origin() + ray.direction() * int.2;
                             p.point().metric_distance(&hp) < self.radius
                         }
                     )
@@ -96,7 +96,7 @@ impl Cylinder {
 }
 
 impl SceneObjectGeometry for Cylinder {
-    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
+    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         let tests = [
             self.surface_intersection(ray),
             if self.height.is_finite() { self.cap_intersection(ray, true) } else { None },
@@ -104,19 +104,19 @@ impl SceneObjectGeometry for Cylinder {
         ];
         tests.into_iter()
             .flatten()
-            .min_by(|(_, a), (_, b)| a.total_cmp(b))
+            .min_by(|(_, _, a), (_, _, b)| a.total_cmp(b))
             .map(
-                |(normal, t)| {
+                |(hp, normal, t)| {
                     // Normal always points outward if double capped,
                     // but can point inwards if single capped or through hole
                     // Custom capped cyliders are assumed to having both caps
                     match self.ctype {
-                        CylinderType::DoubleCap | CylinderType::CustomCap => (normal, t),
+                        CylinderType::DoubleCap | CylinderType::CustomCap => (hp, normal, t),
                         _ => {
                             if normal.dot(ray.direction()).is_sign_positive() {
-                                (normal * -1., t)
+                                (hp, normal * -1., t)
                             } else {
-                                (normal, t)
+                                (hp, normal, t)
                             }
                         }
                     }

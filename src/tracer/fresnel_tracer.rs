@@ -38,7 +38,7 @@ impl Tracer for FresnelTracer {
 
             if let Some(inter) = intersection {
                 // Travel the ray to the hit point where the closest object lies and compute the surface normal there.
-                let hp = *ray.origin() + *ray.direction() * inter.ray_length();
+                let hp = inter.hit_point();
                 let normal = inter.normal();
 
                 let emission_color = nalgebra_glm::DVec3::from_element(inter.object().emission()) * rr_factor;
@@ -96,9 +96,9 @@ impl Tracer for FresnelTracer {
                         let bounce = Ray::new(
                             hp,
                             if cost2 > 0. && RandomGen::rand2() > refr_prob {
-                                (*ray.direction() * refr + (normal * (refr * cost1 - cost2.sqrt()))).normalize()
+                                (ray.direction() * refr + (normal * (refr * cost1 - cost2.sqrt()))).normalize()
                             } else {
-                                (*ray.direction() + normal * (cost1 * 2.)).normalize()
+                                (ray.direction() + normal * (cost1 * 2.)).normalize()
                             }
                         );
                         self.trace(

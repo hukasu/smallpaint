@@ -11,10 +11,10 @@ pub trait SceneObjectStorage: std::marker::Sync {
 impl SceneObjectStorage for Vec<SceneObject> {
     fn find_intersection(&self, ray: &Ray) -> Option<SceneObjectIntersection> {
         self.iter()
-            .filter_map(|obj| obj.intersect(ray).map(|int| (obj, int.0, int.1)))
-            .filter(|(_, _, d)| d >= &SELFINTERSECTION_TOLERANCE)
-            .min_by(|(_, _, rd), (_, _, ld)| rd.total_cmp(ld))
-            .map(|(obj, n, d)| SceneObjectIntersection::new(obj, n, d))
+            .filter_map(|obj| obj.intersect(ray).map(|int| (obj, int.0, int.1, int.2)))
+            .filter(|(_, _, _, d)| d >= &SELFINTERSECTION_TOLERANCE)
+            .min_by(|(_, _, _, rd), (_, _, _, ld)| rd.total_cmp(ld))
+            .map(|(obj, hp, n, d)| SceneObjectIntersection::new(obj, hp, n, d))
     }
 
     fn insert_object(&mut self, obj: SceneObject) {

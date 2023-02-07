@@ -30,12 +30,13 @@ impl Plane {
 }
 
 impl SceneObjectGeometry for Plane {
-    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
+    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         let dot = self.normal.dot(ray.direction());
         if !approx::abs_diff_eq!(dot, 0.) {
             let t = (self.normal.dot(&(self.point - ray.origin())))/(dot);
+            let hp = ray.origin() + ray.direction() * t;
             if t > SELFINTERSECTION_TOLERANCE {
-                Some((self.normal, t))
+                Some((hp, self.normal, t))
             } else {
                 None
             }
@@ -88,7 +89,7 @@ mod tests {
     fn front_hit() {
         let p = Plane::new(nalgebra_glm::DVec3::new(5., 0., 0.), nalgebra_glm::DVec3::new(-1., 0., 0.));
         let r = Ray::new(nalgebra_glm::zero(), nalgebra_glm::DVec3::new(1., 0., 0.));
-        let (normal, t) = p.intersect(&r).expect("Expected intersection");
+        let (hp, normal, t) = p.intersect(&r).expect("Expected intersection");
         approx::assert_abs_diff_eq!(normal, p.normal());
         approx::assert_abs_diff_eq!(t, 5.);
     }
@@ -97,7 +98,7 @@ mod tests {
     fn back_hit() {
         let p = Plane::new(nalgebra_glm::DVec3::new(5., 0., 0.), nalgebra_glm::DVec3::new(1., 0., 0.));
         let r = Ray::new(nalgebra_glm::zero(), nalgebra_glm::DVec3::new(1., 0., 0.));
-        let (normal, t) = p.intersect(&r).expect("Expected intersection");
+        let (hp, normal, t) = p.intersect(&r).expect("Expected intersection");
         approx::assert_abs_diff_eq!(normal, p.normal());
         approx::assert_abs_diff_eq!(t, 5.);
     }

@@ -30,7 +30,7 @@ impl LensFace {
         }.radius()
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
+    pub fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         match self {
             LensFace::Concave(sp) => sp,
             LensFace::Convex(sp) => sp,
@@ -126,7 +126,7 @@ impl Lens {
         }
     }
 
-    fn surface_intersection(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
+    fn surface_intersection(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         Cylinder::new(
             self.axis.clone(),
             self.thickness,
@@ -134,17 +134,22 @@ impl Lens {
             super::CylinderType::CustomCap
         ).intersect(ray)
             .map(
-                |(normal, t)| {
+                |(hp, normal, t)| {
                     if normal.dot(ray.direction()).is_sign_positive() {
-                        (normal * -1., t)
+                        (hp, normal * -1., t)
                     } else {
-                        (normal, t)
+                        (hp, normal, t)
                     }
                 }
             )
     }
 
-    fn face_intersection(&self, ray: &Ray, front_face: bool, depth: u64) -> Option<(nalgebra_glm::DVec3, f64)> {
+    fn face_intersection(
+        &self,
+        ray: &Ray,
+        front_face: bool,
+        depth: u64
+    ) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         // TODO understand how it's possible for a ray to intersect a sphere more than once
         if depth >= 2 { return None; }
         let face = if front_face {
@@ -154,16 +159,15 @@ impl Lens {
         };
         face.intersect(ray)
             .and_then(
-                |(int_normal, t)| {
-                    let hp = *ray.origin() + *ray.direction() * t;
-                    let p_a = hp - *self.axis.origin();
-                    let dist = (p_a - *self.axis.direction() * p_a.dot(self.axis.direction())).magnitude();
+                |(hp, int_normal, t)| {
+                    let p_a = hp - self.axis.origin();
+                    let dist = (p_a - self.axis.direction() * p_a.dot(self.axis.direction())).magnitude();
                     if dist < self.radius && self.axis.origin().metric_distance(&hp) < face.radius() {
                         let normal = match face {
                             LensFace::Convex(_) => int_normal,
                             LensFace::Concave(_) => int_normal * -1.
                         };
-                        Some((normal, t))
+                        Some((hp, normal, t))
                     } else {
                         self.face_intersection(
                             &Ray::new(
@@ -172,7 +176,7 @@ impl Lens {
                             ),
                             front_face,
                             depth + 1
-                        ).map(|(nn, nt)| (nn, nt + t))
+                        ).map(|(hp, nn, nt)| (hp, nn, nt + t))
                     }
                 }
             )
@@ -180,7 +184,7 @@ impl Lens {
 }
 
 impl SceneObjectGeometry for Lens {
-    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
+    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         let tests = [
             self.surface_intersection(ray),
             if self.thickness.is_finite() { self.face_intersection(ray, true, 0) } else { None },
@@ -188,7 +192,7 @@ impl SceneObjectGeometry for Lens {
         ];
         tests.into_iter()
             .flatten()
-            .min_by(|(_, a), (_, b)| a.total_cmp(b))
+            .min_by(|(_, _, a), (_, _, b)| a.total_cmp(b))
     }
 
     fn bounding_box(&self) -> (nalgebra_glm::DVec3, nalgebra_glm::DVec3) {

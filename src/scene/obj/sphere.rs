@@ -30,8 +30,8 @@ impl Sphere {
 }
 
 impl SceneObjectGeometry for Sphere {
-    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
-        let ray_mns_center = *ray.origin() - self.center;
+    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
+        let ray_mns_center = ray.origin() - self.center;
         let b = (ray_mns_center * 2.).dot(ray.direction());
         let c = ray_mns_center.dot(&ray_mns_center) - self.radius.powf(2.);
         let disc = b.powf(2.) - 4. * c;
@@ -41,13 +41,13 @@ impl SceneObjectGeometry for Sphere {
             let sol2 = -b - disc;
             if sol2 > SELFINTERSECTION_TOLERANCE {
                 let t = sol2 / 2.;
-                let intersect = *ray.origin() + *ray.direction() * t;
-                Some(((intersect - self.center).normalize(), t))
+                let intersect = ray.origin() + ray.direction() * t;
+                Some((intersect, (intersect - self.center).normalize(), t))
             }
             else if sol1 > SELFINTERSECTION_TOLERANCE {
                 let t = sol1 / 2.;
-                let intersect = *ray.origin() + *ray.direction() * t;
-                Some(((intersect - self.center).normalize(), t))
+                let intersect = ray.origin() + ray.direction() * t;
+                Some((intersect, (intersect - self.center).normalize(), t))
             }
             else { None }
         } else { None }

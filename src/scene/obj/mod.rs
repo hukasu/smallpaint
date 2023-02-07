@@ -39,6 +39,7 @@ impl std::error::Error for SceneObjectError {}
 #[derive(Debug)]
 pub struct SceneObjectIntersection<'a> {
     object: &'a SceneObject,
+    hit_point: nalgebra_glm::DVec3,
     normal: nalgebra_glm::DVec3,
     ray_length: f64
 }
@@ -46,11 +47,13 @@ pub struct SceneObjectIntersection<'a> {
 impl<'a> SceneObjectIntersection<'a> {
     pub fn new(
         object: &'a SceneObject,
+        hit_point: nalgebra_glm::DVec3,
         normal: nalgebra_glm::DVec3,
         ray_length: f64
     ) -> Self {
         Self {
             object,
+            hit_point,
             normal,
             ray_length
         }
@@ -58,6 +61,10 @@ impl<'a> SceneObjectIntersection<'a> {
 
     pub fn object(&self) -> &SceneObject {
         self.object
+    }
+
+    pub fn hit_point(&self) -> nalgebra_glm::DVec3 {
+        self.hit_point
     }
 
     pub fn normal(&self) -> nalgebra_glm::DVec3 {
@@ -209,7 +216,7 @@ impl SceneObject {
         self.material
     }
 
-    pub fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)> {
+    pub fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)> {
         self.geometry.intersect(ray)
     }
 
@@ -219,6 +226,6 @@ impl SceneObject {
 }
 
 pub trait SceneObjectGeometry: std::fmt::Debug + std::marker::Sync {
-    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, f64)>;
+    fn intersect(&self, ray: &Ray) -> Option<(nalgebra_glm::DVec3, nalgebra_glm::DVec3, f64)>;
     fn bounding_box(&self) -> (nalgebra_glm::DVec3, nalgebra_glm::DVec3);
 }

@@ -166,11 +166,11 @@ impl BoundingVolumeHierarchyNode {
                 BoundingVolumeHierarchyNode::Leaf { aabb: _, object_cout, first_index } => {
                     let slc = &objects[*first_index..(first_index + object_cout)];
                     slc.iter()
-                        .filter_map(|obj| obj.intersect(ray).map(|int| (obj, int.0, int.1)))
-                        .filter(|(_, _, t)| t < &closest_int)
-                        .filter(|(_, _, t)| t >= &SELFINTERSECTION_TOLERANCE)
-                        .min_by(|(_, _, rt), (_, _, lt)| rt.total_cmp(lt))
-                        .map(|(obj, n, t)| SceneObjectIntersection::<'a>::new(obj, n, t))
+                        .filter_map(|obj| obj.intersect(ray).map(|int| (obj, int.0, int.1, int.2)))
+                        .filter(|(_, _, _, t)| t < &closest_int)
+                        .filter(|(_, _, _, t)| t >= &SELFINTERSECTION_TOLERANCE)
+                        .min_by(|(_, _, _, rt), (_, _, _, lt)| rt.total_cmp(lt))
+                        .map(|(obj, hp, n, t)| SceneObjectIntersection::<'a>::new(obj, hp, n, t))
                 },
                 BoundingVolumeHierarchyNode::Branch {
                     aabb: _,
