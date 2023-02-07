@@ -1,5 +1,8 @@
 use crate::{common::Ray, scene::Scene, renderer::RenderParams};
 
+mod flat_tracer;
+pub use flat_tracer::*;
+
 mod simple_tracer;
 pub use simple_tracer::*;
 

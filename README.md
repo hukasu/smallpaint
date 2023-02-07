@@ -11,8 +11,11 @@ The `Tracer` calculates the bounces and returns the final color for a given pixe
 There are 2 `Tracer`s available:  
 | Name | Capabilities |
 |---|---|
+| FlatTracer | <ul><li>None</li></ul> |
 | SimpleTracer | <ul><li>Caustics</li></ul> |
 | FresnelTracer | <ul><li>Caustics</li><li>Fresnel reflections</li></ul> |  
+
+**Note**: The `FlatTracer` returns the color of the first hit and does not continue the path, used only for previewing the scene.  
 
 ### Camera
 The `Camera` generates rays for a given pixel in the "sensor".
