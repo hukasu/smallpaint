@@ -13,6 +13,10 @@ required-features = ["sample-scenes"]
 name = "fresnel_example"
 required-features = ["sample-scenes"]
 
+[[example]]
+name = "flat_example"
+required-features = ["sample-scenes"]
+
 [dependencies]
 approx = "0.5.1"
 nalgebra = "0.32.1"
