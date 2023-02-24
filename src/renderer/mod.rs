@@ -8,12 +8,13 @@ pub struct RenderParams {
 }
 
 #[derive(Debug, Clone)]
-enum RendererStatus {
+pub enum RendererStatus {
     Blank,
     Running,
     Paused,
     Stopped,
-    Completed
+    Completed,
+    Errored
 }
 
 pub struct Renderer {
@@ -144,7 +145,7 @@ impl Renderer {
                                 );
                         } else {
                             if let Ok(mut rensta) = self.renderer_status.lock() {
-                                *rensta = RendererStatus::Stopped;
+                                *rensta = RendererStatus::Errored;
                             }
                             return Err(String::from("Poisoned image mutex"))
                         }
@@ -158,13 +159,13 @@ impl Renderer {
                         }
                     } else {
                         if let Ok(mut rensta) = self.renderer_status.lock() {
-                            *rensta = RendererStatus::Stopped;
+                            *rensta = RendererStatus::Errored;
                         }
                         return Err(String::from("Poisoned sample mutex"))
                     }
                 },
                 RendererStatus::Paused => (),
-                RendererStatus::Stopped | RendererStatus::Completed => break
+                RendererStatus::Stopped | RendererStatus::Completed | RendererStatus::Errored => break
             }
         }
         if let Ok(mut rensta) = self.renderer_status.lock() {
@@ -185,5 +186,9 @@ impl Renderer {
             self.image.lock().unwrap(),
             self.current_sample.lock().unwrap()
         )
+    }
+
+    pub fn renderer_status(&self) -> RendererStatus {
+        self.renderer_status.lock().map_or(RendererStatus::Errored, |r| r.clone())
     }
 }
