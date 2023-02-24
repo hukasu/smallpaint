@@ -181,10 +181,10 @@ impl Renderer {
         )
     }
 
-    pub fn get_image(&self) -> (std::sync::MutexGuard<Vec<nalgebra_glm::DVec3>>, std::sync::MutexGuard<u64>) {
+    pub fn get_image(&self) -> (Vec<nalgebra_glm::DVec3>, u64) {
         (
-            self.image.lock().unwrap(),
-            self.current_sample.lock().unwrap()
+            self.image.lock().map_or(vec![], |r| r.clone()),
+            self.current_sample.lock().map_or(0, |r| r.clone())
         )
     }
 
